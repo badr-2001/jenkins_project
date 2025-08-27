@@ -1,0 +1,4 @@
+ssh_user: ubuntu
+ssh_pubkey_name: bei2_key.pub  
+
+ssh_private_key_name: ""    

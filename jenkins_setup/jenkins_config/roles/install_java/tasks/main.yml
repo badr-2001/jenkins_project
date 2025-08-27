@@ -1,0 +1,29 @@
+---
+- name: Update APT cache
+  apt:
+    update_cache: yes
+
+- name: Install Java (needed for Jenkins agent)
+  apt:
+    name: openjdk-17-jdk
+    state: present
+
+- name: Create jenkins user
+  user:
+    name: jenkins
+    comment: Jenkins Agent User
+    shell: /bin/bash
+    create_home: yes
+
+- name: Allow SSH access with public key
+  authorized_key:
+    user: jenkins
+    state: present
+    key: "{{ lookup('file', '/home/badr/.ssh/bei_key.pub') }}"
+
+- name: Ensure sudo without password for jenkins user
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^jenkins'
+    line: 'jenkins ALL=(ALL) NOPASSWD:ALL'

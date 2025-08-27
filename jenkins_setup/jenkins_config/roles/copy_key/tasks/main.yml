@@ -1,0 +1,12 @@
+---
+- name: replace tield by absolute path
+  ansible.builtin.set_fact:
+    ssh_key_public_path_resolved: "{{ ssh_key_public_path | regex_replace('^~', lookup('env','HOME')) }}"
+
+
+- name: add public key into authorized_keys
+  ansible.builtin.authorized_key:
+    user: "{{ ssh_key_user }}"
+    key: "{{ lookup('file', ssh_key_public_path_resolved) }}"
+    state: present
+
