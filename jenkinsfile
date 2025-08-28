@@ -15,5 +15,38 @@ pipeline {
                 sh "echo 'it works the second time'"
             }
         }
+
+        stage('InstallDependencies') {
+    steps {
+        echo '[INFO] Installing Terraform and Ansible...'
+        sh '''
+          # Install Terraform (only if not already installed)
+          if ! command -v terraform >/dev/null 2>&1; then
+            echo "[INFO] Installing Terraform..."
+            sudo apt-get update -y
+            sudo apt-get install -y wget unzip software-properties-common
+            TERRAFORM_VERSION=1.8.5
+            wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+            unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+            sudo mv terraform /usr/local/bin/
+            terraform -version
+          else
+            echo "[INFO] Terraform already installed: $(terraform -version)"
+          fi
+
+          # Install Ansible (only if not already installed)
+          if ! command -v ansible >/dev/null 2>&1; then
+            echo "[INFO] Installing Ansible..."
+            sudo apt-get update -y
+            sudo apt-get install -y ansible
+            ansible --version
+          else
+            echo "[INFO] Ansible already installed: $(ansible --version | head -n1)"
+          fi
+        '''
     }
+}
+
+    }
+
 }
