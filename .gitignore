@@ -20,7 +20,6 @@ crash.log
 *.tfplan
 
 # Vars (comment out if you want to commit tfvars templates)
-*.tfvars
 
 # Jenkins specific
 secrets/
