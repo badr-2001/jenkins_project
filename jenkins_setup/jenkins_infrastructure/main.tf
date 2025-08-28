@@ -89,7 +89,7 @@ resource "aws_key_pair" "bei_key" {
 module "jenkins_master" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name                        = "jenkins_master"
+  name                        = "bei_jenkins_master"
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.bei_key.key_name
@@ -98,15 +98,15 @@ module "jenkins_master" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "jenkins_master"
-    Role = "jenkins_controller"
+    Name = "bei_jenkins_master"
+    Role = "bei_jenkins_controller"
   }
 }
 
 module "jenkins_slave1" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name                        = "jenkins_slave1"
+  name                        = "bei_jenkins_slave1"
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.bei_key.key_name
@@ -115,15 +115,15 @@ module "jenkins_slave1" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "jenkins_slave1"
-    Role = "jenkins_agent"
+    Name = "bei_jenkins_slave1"
+    Role = "bei_jenkins_agent"
   }
 }
 
 module "jenkins_slave2" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name                        = "jenkins_slave2"
+  name                        = "bei_jenkins_slave2"
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.bei_key.key_name
@@ -132,15 +132,15 @@ module "jenkins_slave2" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "jenkins_slave2"
-    Role = "jenkins_agent"
+    Name = "bei_jenkins_slave2"
+    Role = "bei_jenkins_agent"
   }
 }
 
 module "jenkins_slave3" {
   source  = "terraform-aws-modules/ec2-instance/aws"
 
-  name                        = "jenkins_slave3"
+  name                        = "bei_jenkins_slave3"
   ami                         = var.ami
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.bei_key.key_name
@@ -149,38 +149,8 @@ module "jenkins_slave3" {
   associate_public_ip_address = true
 
   tags = {
-    Name = "jenkins_slave3"
-    Role = "jenkins_agent"
+    Name = "bei_jenkins_slave3"
+    Role = "bei_jenkins_agent"
   }
 }
 
-# ----------------------
-# Outputs (IPs)
-# ----------------------
-output "jenkins_master_public_ip" {
-  description = "Public IP of Jenkins controller"
-  value       = module.jenkins_master.public_ip
-}
-
-output "jenkins_master_private_ip" {
-  description = "Private IP of Jenkins controller"
-  value       = module.jenkins_master.private_ip
-}
-
-output "jenkins_agents_public_ips" {
-  description = "Public IPs of Jenkins agents"
-  value = {
-    slave1 = module.jenkins_slave1.public_ip
-    slave2 = module.jenkins_slave2.public_ip
-    slave3 = module.jenkins_slave3.public_ip
-  }
-}
-
-output "jenkins_agents_private_ips" {
-  description = "Private IPs of Jenkins agents"
-  value = {
-    slave1 = module.jenkins_slave1.private_ip
-    slave2 = module.jenkins_slave2.private_ip
-    slave3 = module.jenkins_slave3.private_ip
-  }
-}

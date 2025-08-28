@@ -4,7 +4,7 @@
 # ==========================
 
 USER="ubuntu"
-HOST="34.240.2.243"
+HOST="34.245.236.67"
 PORT=22
 KEY_PATH="/home/badr/.ssh/bei_key"
 
