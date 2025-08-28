@@ -1,0 +1,10 @@
+ssh_user_home: ubuntu
+ssh_key_private_path: ~/.ssh/bei_key
+ssh_key_user: ubuntu
+ssh_key_public_path: ~/.ssh/khalil_key.pub
+ansible_user: "{{ ssh_key_user }}"
+ansible_ssh_private_key_file: "{{ ssh_key_private_path }}"
+
+##inventory
+ansible_host_front1: 54.170.44.133
+ansible_host_front2: 18.201.100.92

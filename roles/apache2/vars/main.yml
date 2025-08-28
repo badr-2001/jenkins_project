@@ -1,0 +1,6 @@
+---
+# vars file for part1
+index_path: /var/www/html
+index_template_path: index.html.j2
+custom_index_path: /var/www/html/index.html
+apache_log_path: /var/log/apache2

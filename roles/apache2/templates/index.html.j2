@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hello World</title>
+
+  <style>
+    /* ========= Design tokens ========= */
+    :root{
+      --bg: #0b1020;
+      --bg-accent: linear-gradient(135deg, #0b1020 0%, #141a33 100%);
+      --card: #0f162e;
+      --text: #e7eaf6;
+      --muted: #b9bfd3;
+      --brand: #6aa8ff;
+      --brand-2: #9b7dff;
+      --ok: #22c55e;
+      --border: 1px solid rgba(255,255,255,0.08);
+      --shadow: 0 10px 30px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+      --radius-xl: 20px;
+      --radius: 12px;
+      --gap: 16px;
+    }
+    @media (prefers-color-scheme: light){
+      :root{
+        --bg: #eef2ff;
+        --bg-accent: linear-gradient(135deg, #eef2ff 0%, #f7f7fb 100%);
+        --card: #ffffff;
+        --text: #0b1020;
+        --muted: #4b5563;
+        --brand: #2563eb;
+        --brand-2: #7c3aed;
+        --border: 1px solid rgba(0,0,0,0.06);
+        --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      }
+    }
+
+    /* ========= Page layout ========= */
+    html,body{
+      height:100%;
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color: var(--text);
+      background: var(--bg-accent) fixed;
+    }
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding: 48px 20px;
+    }
+    .card{
+      width: min(900px, 92vw);
+      background: radial-gradient(1200px 500px at -10% -20%, rgba(106,168,255,0.12), transparent 60%),
+                  radial-gradient(1200px 600px at 120% 140%, rgba(155,125,255,0.14), transparent 60%),
+                  var(--card);
+      border: var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 36px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative gradient bar */
+    .bar{
+      position:absolute;
+      inset: 0 auto auto 0;
+      height: 6px;
+      width: 180px;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      border-radius: 0 0 var(--radius) 0;
+      box-shadow: 0 6px 20px rgba(106,168,255,0.35);
+    }
+
+    /* ========= Header ========= */
+    .title{
+      font-size: clamp(28px, 4vw, 40px);
+      line-height: 1.15;
+      margin: 12px 0 8px;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hello-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      color: white;
+      background: linear-gradient(90deg, var(--brand), var(--brand-2));
+      padding: 8px 12px;
+      border-radius: 999px;
+      box-shadow: 0 8px 18px rgba(124,58,237,0.35);
+    }
+
+    .subtitle{
+      color: var(--muted);
+      margin: 0 0 22px;
+      font-size: 15px;
+    }
+
+    /* ========= Facts grid ========= */
+    .facts{
+      display:grid;
+      gap: var(--gap);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin: 24px 0 10px;
+    }
+    .fact{
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+      border: var(--border);
+      border-radius: var(--radius);
+      padding: 16px 16px 14px;
+      backdrop-filter: saturate(1.2) blur(2px);
+    }
+    .fact .label{
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: var(--muted);
+      margin-bottom: 6px;
+      display:block;
+    }
+    .fact .value{
+      font-size: 18px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    /* ========= Footer note ========= */
+    .footer{
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:999px;background:var(--ok);box-shadow:0 0 0 4px rgba(34,197,94,0.15);
+    }
+
+    /* Subtle entrance animation */
+    @keyframes floatIn{
+      from{ transform: translateY(8px); opacity: 0 }
+      to{ transform: translateY(0); opacity: 1 }
+    }
+    .card{ animation: floatIn .6s ease-out both; }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="card">
+      <div class="bar"></div>
+
+      <span class="hello-badge">HELLO WORLD</span>
+      <h1 class="title">
+        from&nbsp;<span style="background:linear-gradient(90deg,var(--brand),var(--brand-2));-webkit-background-clip:text;background-clip:text;color:transparent;">
+          {{ ansible_hostname }}
+        </span>
+      </h1>
+      <p class="subtitle">
+        A tiny static page rendered by Apache and filled with live Ansible facts.
+      </p>
+
+      <div class="facts">
+        <div class="fact">
+          <span class="label">IPv4 Address</span>
+          <div class="value">{{ ansible_default_ipv4.address }}</div>
+        </div>
+
+        <div class="fact">
+          <span class="label">Operating System</span>
+          <div class="value">{{ ansible_distribution }} {{ ansible_distribution_version }}</div>
+        </div>
+
+        <div class="fact">
+          <span class="label">Total Memory</span>
+          <div class="value">{{ (ansible_memtotal_mb / 1024) | round(2) }} GB</div>
+        </div>
+
+        <div class="fact">
+          <span class="label">Hostname</span>
+          <div class="value">{{ ansible_hostname }}</div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <span class="dot"></span>
+        <span>Powered by Apache2 • Deployed via Ansible templates</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

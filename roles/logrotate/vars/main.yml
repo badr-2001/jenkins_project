@@ -1,0 +1,3 @@
+---
+logrotate_path: /etc/logrotate.d/bei2_apache
+logrotate_template_file: apache2-custom.j2

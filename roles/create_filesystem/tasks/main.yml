@@ -1,0 +1,43 @@
+
+- name: Create empty file with 10MB
+  command: dd if=/dev/zero of=/{{file_name}} bs=1M count=10
+
+- name: Format file as ext4 filesystem
+  command: mkfs.ext4 /{{file_name}}
+
+- name: Create mount point
+  file:
+    path: "{{mount_path}}"
+    state: directory ##create a /var/www repository
+
+- name: Mount filesystem on /var/www
+  command: mount -o loop /{{file_name}} /var/www
+
+##apache 
+
+- name: Create empty file for apache logs
+  command: dd if=/dev/zero of=/{{ apache_file_name }} bs=1M count=10
+  args:
+    creates: "/{{ apache_file_name }}"
+  become: true
+
+- name: Format apache log file as ext4
+  filesystem:
+    fstype: ext4
+    dev: "/{{ apache_file_name }}"
+  become: true
+
+- name: Ensure apache log directory exists
+  file:
+    path: "{{ apache_log_path }}"
+    state: directory
+  become: true
+
+- name: Mount apache log directory
+  mount:
+    path: "{{ apache_log_path }}"
+    src: "/{{ apache_file_name }}"
+    fstype: ext4
+    opts: loop
+    state: mounted
+  become: true

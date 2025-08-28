@@ -1,0 +1,35 @@
+---
+- name: Ensure required packages are installed
+  ansible.builtin.apt:
+    name:
+      - wget
+      - gnupg
+      - fontconfig
+      - "{{ java_package }}"
+    state: present
+    update_cache: yes
+
+- name: Add Jenkins apt key
+  ansible.builtin.get_url:
+    url: "{{ jenkins_key_url }}"
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: '0644'
+
+- name: Add Jenkins repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] {{ jenkins_repo_url }} binary/"
+    state: present
+    filename: jenkins
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: yes
+  notify: restart jenkins
+
+- name: Ensure Jenkins is enabled and running
+  ansible.builtin.service:
+    name: jenkins
+    enabled: yes
+    state: started
