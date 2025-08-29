@@ -1,5 +1,5 @@
 ssh_user_home: ubuntu
-ssh_key_private_path: /home/ubuntu/.ssh/id_rsa
+ssh_key_private_path: /var/lib/jenkins/.ssh/id_rsa
 ssh_key_user: ubuntu
 ssh_key_public_path: ~/.ssh/khalil_key.pub
 ansible_user: "{{ ssh_key_user }}"
