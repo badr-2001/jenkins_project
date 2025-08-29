@@ -73,10 +73,11 @@ stage('ValidateDeploy') {
             | grep "Hello World"
 
           echo "[INFO] Validating logrotate..."
-          ansible front -i inventory/hosts.ini -m shell -a "logrotate --debug /etc/logrotate.conf | grep apache2"
+          ansible front -i inventory/hosts.ini -b -m shell -a "logrotate -v /etc/logrotate.conf | grep apache2"
         '''
     }
 }
+
 
 
 
