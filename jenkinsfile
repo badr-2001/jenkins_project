@@ -26,17 +26,6 @@ pipeline {
             steps {
                 echo '[INFO] Installing Terraform and Ansible...'
                 sh '''
-                  if ! command -v terraform >/dev/null 2>&1; then
-                    echo "[INFO] Installing Terraform..."
-                    sudo apt-get update -y
-                    sudo apt-get install -y wget unzip software-properties-common
-                    TERRAFORM_VERSION=1.8.5
-                    wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-                    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-                    sudo mv terraform /usr/local/bin/
-                  fi
-                  terraform -version
-
                   if ! command -v ansible >/dev/null 2>&1; then
                     echo "[INFO] Installing Ansible..."
                     sudo apt-get update -y
