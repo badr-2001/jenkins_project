@@ -4,7 +4,11 @@ pipeline {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
     }
     parameters {
-        choice(name: 'ROLE', choices: ['all', 'filesystem', 'apache2', 'logrotate'], description: 'Which role to run')
+        choice(
+            name: 'ROLE',
+            choices: ['all', 'filesystem', 'apache2', 'logrotate'],
+            description: 'Which role to run'
+        )
     }
 
     stages {
@@ -30,22 +34,24 @@ pipeline {
                     echo "[INFO] Installing Ansible..."
                     sudo apt-get update -y
                     sudo apt-get install -y ansible
+                    ansible --version
+                  else
+                    echo "[INFO] Ansible already installed: $(ansible --version | head -n1)"
                   fi
-                  ansible --version
                 '''
             }
         }
 
         stage('Run Ansible Playbook') {
             steps {
-                sshagent(['ansible']) {
-                    sh '''
-                      if [ "${ROLE}" = "all" ]; then
-                        ansible-playbook -i inventory/hosts.ini main-playbook.yml
-                      else
-                        ansible-playbook -i inventory/hosts.ini main-playbook.yml --tags ${ROLE}
-                      fi
-                    '''
+                script {
+                    def extraArgs = (params.ROLE == "all") ? "" : "--tags ${params.ROLE}"
+                    ansiblePlaybook(
+                        playbook: 'main-playbook.yml',
+                        inventory: 'inventory/hosts.ini',
+                        credentialsId: 'ansible',  
+                        extras: extraArgs
+                    )
                 }
             }
         }
