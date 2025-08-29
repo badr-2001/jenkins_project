@@ -2,6 +2,11 @@
 - name: Update apt cache
   ansible.builtin.apt:
     update_cache: yes
+    
+- name: Remove default apache2 logrotate config
+  file:
+    path: /etc/logrotate.d/apache2
+    state: absent
 
 - name: Install logrotate
   ansible.builtin.apt:
