@@ -1,12 +1,11 @@
 pipeline {
-    agent { label 'master'}
+    agent { label 'master' }
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
     }
     parameters {
-    choice(name: 'ROLE', choices: ['all', 'filesystem', 'apache2', 'logrotate'], description: 'Which role to run')
-}
-
+        choice(name: 'ROLE', choices: ['all', 'filesystem', 'apache2', 'logrotate'], description: 'Which role to run')
+    }
 
     stages {
         stage("Checkout") {
@@ -24,53 +23,52 @@ pipeline {
         }
 
         stage('InstallDependencies') {
-    steps {
-        echo '[INFO] Installing Terraform and Ansible...'
-        sh '''
-          # Install Terraform (only if not already installed)
-          if ! command -v terraform >/dev/null 2>&1; then
-            echo "[INFO] Installing Terraform..."
-            sudo apt-get update -y
-            sudo apt-get install -y wget unzip software-properties-common
-            TERRAFORM_VERSION=1.8.5
-            wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-            unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
-            sudo mv terraform /usr/local/bin/
-            terraform -version
-          else
-            echo "[INFO] Terraform already installed: $(terraform -version)"
-          fi
+            steps {
+                echo '[INFO] Installing Terraform and Ansible...'
+                sh '''
+                  if ! command -v terraform >/dev/null 2>&1; then
+                    echo "[INFO] Installing Terraform..."
+                    sudo apt-get update -y
+                    sudo apt-get install -y wget unzip software-properties-common
+                    TERRAFORM_VERSION=1.8.5
+                    wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                    unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+                    sudo mv terraform /usr/local/bin/
+                  fi
+                  terraform -version
 
-          # Install Ansible (only if not already installed)
-          if ! command -v ansible >/dev/null 2>&1; then
-            echo "[INFO] Installing Ansible..."
-            sudo apt-get update -y
-            sudo apt-get install -y ansible
-            ansible --version
-          else
-            echo "[INFO] Ansible already installed: $(ansible --version | head -n1)"
-          fi
-        '''
+                  if ! command -v ansible >/dev/null 2>&1; then
+                    echo "[INFO] Installing Ansible..."
+                    sudo apt-get update -y
+                    sudo apt-get install -y ansible
+                  fi
+                  ansible --version
+                '''
+            }
+        }
+
+        stage('Run Ansible Playbook') {
+            steps {
+                sshagent(['ansible']) {
+                    sh '''
+                      if [ "${ROLE}" = "all" ]; then
+                        ansible-playbook -i inventory/hosts.ini main-playbook.yml
+                      else
+                        ansible-playbook -i inventory/hosts.ini main-playbook.yml --tags ${ROLE}
+                      fi
+                    '''
+                }
+            }
+        }
+
+        stage('ValidateDeploy') {
+            steps {
+                sh '''
+                  echo "[INFO] Validating Apache page..."
+                  ansible front -i inventory/hosts.ini -m uri -a "url=http://{{ ansible_host }}/ return_content=yes" \
+                    | grep "Hello World"
+                '''
+            }
+        }
     }
-}
-sshagent(['ansible']) {
-    sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
-}
-
-
-stage('ValidateDeploy') {
-    steps {
-        sh '''
-          echo "[INFO] Validating Apache page..."
-          ansible front -i inventory/hosts.ini -m uri -a "url=http://{{ ansible_host }}/ return_content=yes" \
-            | grep "Hello World"
-        '''
-    }
-}
-
-
-
-
-    }
-
 }
