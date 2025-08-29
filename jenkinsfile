@@ -3,6 +3,10 @@ pipeline {
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
     }
+    parameters {
+    choice(name: 'ROLE', choices: ['all', 'filesystem', 'apache2', 'logrotate'], description: 'Which role to run')
+}
+
 
     stages {
         stage("Checkout") {
@@ -50,12 +54,31 @@ pipeline {
     }
 }
 stage('RunPlaybook') {
-            steps {
-                script {
-                    sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
-                }
+    steps {
+        script {
+            if (params.ROLE == "all") {
+                sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
+            } else {
+                sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml --tags ${params.ROLE}"
             }
         }
+    }
+}
+
+stage('ValidateDeploy') {
+    steps {
+        sh '''
+          echo "[INFO] Validating Apache page..."
+          ansible front -i inventory/hosts.ini -m uri -a "url=http://{{ ansible_host }}/ return_content=yes" \
+            | grep "Hello World"
+
+          echo "[INFO] Validating logrotate..."
+          ansible front -i inventory/hosts.ini -m shell -a "logrotate --debug /etc/logrotate.conf | grep apache2"
+        '''
+    }
+}
+
+
 
     }
 
