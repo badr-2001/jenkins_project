@@ -3,16 +3,9 @@ pipeline {
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
     }
-    parameters {
-        choice(
-            name: 'ROLE',
-            choices: ['all', 'filesystem', 'apache2', 'logrotate'],
-            description: 'Which role to run'
-        )
-    }
 
     stages {
-        stage("Checkout") {
+        stage('Checkout') {
             steps {
                 git branch: 'main',
                     credentialsId: 'github',
@@ -20,49 +13,63 @@ pipeline {
             }
         }
 
-        stage("Test") {
+        stage('PrepareEnv') {
             steps {
-                sh "echo 'it works the second time'"
-            }
-        }
-
-        stage('InstallDependencies') {
-            steps {
-                echo '[INFO] Installing Terraform and Ansible...'
+                echo '[INFO] Installing dependencies...'
                 sh '''
-                  if ! command -v ansible >/dev/null 2>&1; then
-                    echo "[INFO] Installing Ansible..."
-                    sudo apt-get update -y
-                    sudo apt-get install -y ansible
-                    ansible --version
-                  else
-                    echo "[INFO] Ansible already installed: $(ansible --version | head -n1)"
-                  fi
+                  sudo apt-get update -y
+                  sudo apt-get install -y ansible curl
+                  ansible --version
                 '''
             }
         }
 
-        stage('Run Ansible Playbook') {
+        stage('CreateFilesystem') {
             steps {
-                script {
-                    def extraArgs = (params.ROLE == "all") ? "" : "--tags ${params.ROLE}"
-                    ansiblePlaybook(
-                        playbook: 'main-playbook.yml',
-                        inventory: 'inventory/hosts.ini',
-                        credentialsId: 'ansible',
-                        extras: extraArgs
-                    )
-                }
+                echo '[INFO] Creating and mounting filesystems...'
+                ansiblePlaybook(
+                    playbook: 'main-playbook.yml',
+                    inventory: 'inventory/hosts.ini',
+                    credentialsId: 'ansible',
+                    extras: '--tags filesystem'
+                )
+            }
+        }
+
+        stage('InstallApache') {
+            steps {
+                echo '[INFO] Installing and configuring Apache2...'
+                ansiblePlaybook(
+                    playbook: 'main-playbook.yml',
+                    inventory: 'inventory/hosts.ini',
+                    credentialsId: 'ansible',
+                    extras: '--tags apache2'
+                )
+            }
+        }
+
+        stage('LogRotate') {
+            steps {
+                echo '[INFO] Installing logrotate...'
+                ansiblePlaybook(
+                    playbook: 'main-playbook.yml',
+                    inventory: 'inventory/hosts.ini',
+                    credentialsId: 'ansible',
+                    extras: '--tags logrotate'
+                )
             }
         }
 
         stage('ValidateDeploy') {
             steps {
-                sh '''
-                  echo "[INFO] Validating Apache page..."
-                  ansible front -i inventory/hosts.ini -m uri -a "url=http://{{ ansible_host }}/ return_content=yes" \
-                    | grep "Hello World"
-                '''
+                script {
+                    sh '''
+                      echo "[INFO] Checking Apache page..."
+                      ansible front -i inventory/hosts.ini -m uri \
+                        -a "url=http://{{ ansible_host }}/ return_content=yes" \
+                        | grep "Hello World"
+                    '''
+                }
             }
         }
     }
