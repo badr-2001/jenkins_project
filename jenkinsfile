@@ -49,7 +49,7 @@ pipeline {
                     ansiblePlaybook(
                         playbook: 'main-playbook.yml',
                         inventory: 'inventory/hosts.ini',
-                        credentialsId: 'ansible',  
+                        credentialsId: 'ansible',
                         extras: extraArgs
                     )
                 }
@@ -64,6 +64,17 @@ pipeline {
                     | grep "Hello World"
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            slackSend(channel: '#jenkins', color: 'good',
+                message: "✅ Job *${env.JOB_NAME}* [${env.BUILD_NUMBER}] succeeded (<${env.BUILD_URL}|Open>)")
+        }
+        failure {
+            slackSend(channel: '#jenkins', color: 'danger',
+                message: "❌ Job *${env.JOB_NAME}* [${env.BUILD_NUMBER}] failed (<${env.BUILD_URL}|Open>)")
         }
     }
 }
