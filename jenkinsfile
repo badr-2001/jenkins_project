@@ -53,17 +53,10 @@ pipeline {
         '''
     }
 }
-stage('RunPlaybook') {
-    steps {
-        script {
-            if (params.ROLE == "all") {
-                sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
-            } else {
-                sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml --tags ${params.ROLE}"
-            }
-        }
-    }
+sshagent(['ansible']) {
+    sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
 }
+
 
 stage('ValidateDeploy') {
     steps {
