@@ -1,5 +1,8 @@
 pipeline {
     agent { label 'master'}
+    environment {
+        ANSIBLE_HOST_KEY_CHECKING = 'False'
+    }
 
     stages {
         stage("Checkout") {
