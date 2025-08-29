@@ -1,0 +1,24 @@
+---
+- name: Install SSH access
+  hosts: all
+  become: true
+  roles:
+    - copy_key
+
+- name: filesystem
+  hosts: all
+  become: true
+  roles:
+    - create_filesystem
+
+- name: Install appache2
+  hosts: all
+  become: true
+  roles:
+    - apache2
+
+- name: Install logrotate
+  hosts: all
+  become: true
+  roles:
+    - logrotate

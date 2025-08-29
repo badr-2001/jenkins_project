@@ -46,40 +46,13 @@ pipeline {
         '''
     }
 }
-stage('Terraform Init') {
-    steps {
-        dir('infrastructure') {   // cd infrastructure/
-            sh '''
-              echo "[INFO] Terraform Init"
-              terraform init -input=false
-            '''
+stage('RunPlaybook') {
+            steps {
+                script {
+                    sh "ansible-playbook -i inventory/hosts.ini main-playbook.yml"
+                }
+            }
         }
-    }
-}
-
-stage('Terraform Plan') {
-    steps {
-        dir('infrastructure') {
-            sh '''
-              echo "[INFO] Terraform Plan"
-              terraform plan -out=tfplan -input=false
-            '''
-        }
-        // save the plan for review in Jenkins
-        archiveArtifacts artifacts: 'infrastructure/tfplan', onlyIfSuccessful: true
-    }
-}
-
-stage('Terraform Apply') {
-    steps {
-        dir('infrastructure') {
-            sh '''
-              echo "[INFO] Terraform Apply"
-              terraform apply -input=false -auto-approve tfplan
-            '''
-        }
-    }
-}
 
     }
 
