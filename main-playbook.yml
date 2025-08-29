@@ -1,10 +1,4 @@
 ---
-- name: Install SSH access
-  hosts: all
-  become: true
-  roles:
-    - copy_key
-
 - name: filesystem
   hosts: all
   become: true

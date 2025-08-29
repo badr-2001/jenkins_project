@@ -1,6 +1,6 @@
 ---
 # vars file for create_filesystem
-file_name: myfiles22344.img
-apache_file_name: myfiles2424.img
+file_name: myfiles2S2344.img
+apache_file_name: myfiles24S24.img
 apache_log_path: /var/log/apache2
 mount_path: /var/www
